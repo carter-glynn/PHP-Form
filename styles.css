@@ -128,3 +128,61 @@ footer {
     margin-bottom: 5vh;
     text-align: center;
 }
+
+/*-----------------------------*/
+/*    Feedback Form Styling    */
+/*-----------------------------*/
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 6rem;
+    padding: 2.5rem;
+}
+.container *:focus {
+    background-color: aqua;
+}
+.container *:valid {
+    background-color: lime;
+}
+.contact {
+    display: flex;
+    flex-direction: column;
+    width: 50vw;
+    margin: 2.5rem;
+}
+.contact > input {
+    height: 2rem;
+    font-size: large;
+    padding-left: 10px;
+}
+.message {
+    display: flex;
+    flex-direction: column;
+    margin: 1rem;
+}
+#msg {
+    width: 33vw;
+    height: 50vh;
+    resize: none;
+    font-size: larger;
+    padding: 10px;
+}
+.buttons {
+    display: flex;
+    flex-direction: row;
+}
+.buttons *{
+    margin: 0 10vw 0 10vw;
+    width: 5rem;
+    height: 1.5rem;
+    border: none;
+    background-color: darkgray;
+    font-weight: bold;
+}
