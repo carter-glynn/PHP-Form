@@ -22,7 +22,8 @@
             <ul class="rnav">
                 <li class="rnav-item"><a href="projects.html">PROJECTS</a></li>
                 <li class="rnav-item"><a href="about.html">ABOUT</a></li>
-                <li class="rnav-item"><a href="feedback.html">FEEDBACK</a></li>
+                <li class="rnav-item"><a href="feedback.html">FEEDBACK (CSV)</a></li>
+                <li class="rnav-item"><a href="feedbackv2.php">FEEDBACK (SSV)</a></li>
             </ul>
         </nav>
         <form method="post" novalidate>
@@ -34,7 +35,7 @@
                         <label for="email">Email Address:</label>
                         <input type="email" id="email" name="email" placeholder="Ex. johnnyapplez@conestogac.on.ca">
                         <label for="code">Postal Code:</label>
-                        <input type="text" id="code" name="code" placeholder="Ex. A1A1A1 (must follow the letter/number pattern)">
+                        <input type="text" id="code" name="postal_code" placeholder="Ex. A1A1A1 (must follow the letter/number pattern)">
                     </div>
                     <div class="message">
                         <label for="msg">Message</label>
@@ -44,6 +45,7 @@
                 <div class="buttons">
                     <input type="submit">
                     <input type="reset" value="Clear">
+                    <input type="button" onclick="window.location.href='table.php';" value="View Table" />
                 </div>
             </div>
           </form>
@@ -51,25 +53,65 @@
             &copy; 2023 DCA, Inc. All rights reserved.
         </footer>
         <?php
-        if($_SERVER['REQUEST_METHOD']=="POST") {    // stops error messages from happenning if the form hasn't been submitted yet
-
+        function ErrorCheck() {
+            $check = true;
             if(empty($_POST['name'])) {
                 echo "<div style=\"background-color: red;text-align:center; margin-top:1rem\">Name field must not be empty.</div>";
+                $check = false;
+            }
+            if(preg_match("/^[0-9]$/", $_POST['name'])) {
+                echo "<div style=\"background-color: red;text-align:center; margin-top:1rem\">Name field must not have numbers.</div>";
+                $check = false;
             }
             if(empty($_POST['email'])) {
                 echo "<div style=\"background-color: red;text-align:center; margin-top:1rem\">Email field must not be empty.</div>";
+                $check = false;
             }
-            if (!preg_match("/^[a-zA-Z0-9._%+-]+@conestogac\.on\.ca$/", $_POST['email'])) {
+            if(!preg_match("/^[a-zA-Z0-9._%+-]+@conestogac\.on\.ca$/", $_POST['email'])) {
                 echo "<div style=\"background-color: red;text-align:center; margin-top:1rem\">Email must be @conestogac.on.ca</div>";
+                $check = false;
             }
-            if(empty($_POST['code'])) {
+            if(empty($_POST['postal_code'])) {
                 echo "<div style=\"background-color: red;text-align:center; margin-top:1rem\">Postal Code field must not be empty.</div>";
+                $check = false;
             }
-            if (!preg_match("/^[A-Za-z][0-9][A-Za-z][0-9][A-Za-z][0-9]$/", $_POST['code'])) {
+            if(!preg_match("/^[A-Za-z][0-9][A-Za-z][0-9][A-Za-z][0-9]$/", $_POST['postal_code'])) {
                 echo "<div style=\"background-color: red;text-align:center; margin-top:1rem\">Postal code must match format</div>";
+                $check = false;
             } 
-            if (strlen($_POST['message']) > 200) {
+            if(strlen($_POST['message']) > 200) {
                 echo "<div style=\"background-color: red;text-align:center; margin-top:1rem\">Message length exceeds 200 characters</div>";
+                $check = false;
+            }
+            return $check;
+        }
+        if($_SERVER['REQUEST_METHOD']=="POST") {    // stops error messages from happenning if the form hasn't been submitted yet
+            $check = ErrorCheck();
+
+            if ($check === false) {
+                die;
+            }
+            ini_set('display_errors',1);
+            ini_set('display_startup_errors',1);
+            error_reporting(E_ALL);
+
+            try
+            {
+            //open the database
+            $db = new PDO('sqlite:feedback.db');
+            $name = $_POST['name'];
+            $email = $_POST['email'];
+            $postal_code = $_POST['postal_code'];
+            $message = $_POST['message'];
+
+            $insert = $db->prepare('INSERT INTO feedback (name, email, postal_code, message) VALUES (?, ?, ?, ?)');
+            $insert->execute([$name, $email, $postal_code, $message]);
+            
+            $db = NULL;
+            }
+            catch(PDOException $e)
+            {
+            print 'Exception : ' .$e->getMessage();
             }
         }
         ?>
